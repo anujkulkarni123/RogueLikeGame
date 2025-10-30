@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance = null;
     private BoardManager boardScript;
-    private int leel = 1;
+    private int level = 1;
     public int playerFood = 100;
     public bool playersTurn = true;
 
@@ -16,12 +16,10 @@ public class GameManager : MonoBehaviour
             instance = this;
         else if (instance != this)
             Destroy(gameObject);
-
-        DontDestroyOnload(gameObject);
+        DontDestroyOnLoad(gameObject); 
         boardScript = GetComponent<BoardManager>();
         InitGame();
     }
-
     void InitGame()
     {
         boardScript.SetupScene(level);
@@ -30,14 +28,20 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         if (playersTurn) return;
-        StartCouroutine(MoveEnemies());
+        StartCoroutine(MoveEnemies());
     }
 
     IEnumerator MoveEnemies()
+{
+    EnemyController[] enemies = FindObjectsOfType<EnemyController>();
+    foreach (EnemyController enemy in enemies)
     {
-        yield return new WaitForSeconds(0.1f);
-        playersTurn = true;
+        enemy.TakeTurn(FindObjectOfType<PlayerController>().transform.position);
+        yield return new WaitForSeconds(0.1f); // small delay between enemies
     }
+
+    playersTurn = true;
+}
     
     public void GameOver()
     {
